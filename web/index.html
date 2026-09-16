@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perception Gap Dashboard</title>
+<meta name="description" content="Family perception of grade-level performance compared against MAP, STAAR and end-of-course assessment results across 682 survey responses.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<div class="shell">
+
+  <div class="banner">
+    <div>Family survey responses matched against MAP, STAAR and end-of-course results. Every figure on this page recalculates from the filters.</div>
+    <span>682 students &middot; MAP Quintile 5, STAAR/EOC Meets or Masters</span>
+  </div>
+
+  <div class="topbar">
+    <div class="title-block">
+      <h1>Family Perception vs. Assessment Performance</h1>
+      <p id="subheadline">682 survey respondents &middot; 696 comparable student&ndash;subject records</p>
+    </div>
+    <div class="filters" id="filterBar">
+      <div class="ms" id="msSchool"></div>
+      <div class="ms" id="msBand"></div>
+      <div class="ms" id="msGrade"></div>
+      <div class="ms" id="msSchoolName"></div>
+      <div class="filter-ctl">
+        <label>Survey Response</label>
+        <select id="fSurvey">
+          <option value="All">All</option>
+          <option value="Both">1. Both (Math AND English)</option>
+          <option value="Either">2. Either (Math OR English)</option>
+          <option value="MathAny">3. Math answered (any)</option>
+          <option value="ReadAny">4. English answered (any)</option>
+          <option value="MathOnly">5. Math only</option>
+          <option value="ReadOnly">6. English only</option>
+          <option value="Neither">7. Neither (both null)</option>
+        </select>
+      </div>
+      <div class="filter-ctl">
+        <label>View</label>
+        <select id="fSubject">
+          <option value="Both">Math + Reading</option>
+          <option value="Math">Math only</option>
+          <option value="Reading">Reading only</option>
+        </select>
+      </div>
+      <button class="reset-btn" id="resetBtn">Reset filters</button>
+    </div>
+  </div>
+
+  <div id="crossFilterBar"></div>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Assessment coverage: performed vs. underperformed</div>
+        <div class="panel-sub">Updates with the filters above</div>
+      </div>
+    </div>
+    <div class="kpis" id="areaBreakdownPanel"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Data coverage: how many students sit behind each number</div>
+        <div class="panel-sub" id="covSub"></div>
+      </div>
+    </div>
+    <div class="row-2" style="grid-template-columns:1fr 1fr;" id="covPanel"></div>
+    <div class="demo-note" style="margin-top:14px;">
+      A student drops out of the Intersection for two different reasons: answering <b>Unsure</b>
+      (a real response) or having <b>no exam on record</b>. "Matching" means the parent's yes/no
+      answer agrees with the teacher's on-grade-level classification.
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">What families believe, by whether the scholar is actually on grade level</div>
+        <div class="panel-sub">On grade level follows the district crosswalk. Each subject is resolved through its own exam hierarchy.</div>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="lg" style="font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:10px;">"Actually&hellip;" bars:</span>
+      <span class="lg"><span class="sw" style="background:var(--c-ontrack)"></span>Believes on grade level</span>
+      <span class="lg"><span class="sw" style="background:var(--c-below)"></span>Believes below grade level</span>
+      <span class="lg"><span class="sw" style="background:var(--c-unsure)"></span>Unsure</span>
+    </div>
+    <div id="tierPanel"></div>
+    <div class="axis-row"><div></div><div class="axis"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Who is actually underperforming? (by marks alone, regardless of parent belief)</div>
+        <div class="panel-sub">A scholar counts here if the assessment says "below grade level" in Math or Reading &mdash; whether or not the family agrees</div>
+      </div>
+    </div>
+    <div class="row-2" style="grid-template-columns:1fr 1.4fr;">
+      <div>
+        <div class="cov-head">Parent awareness of underperformance</div>
+        <div id="awarenessPanel"></div>
+      </div>
+      <div>
+        <div class="cov-head">Race &times; EL / SPED / Economic Disadvantage</div>
+        <div id="raceBreakdownPanel"></div>
+      </div>
+    </div>
+    <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--rule-soft);">
+      <div class="cov-head">Home Language &times; EL / SPED / Economic Disadvantage</div>
+      <div id="homeLangBreakdownPanel"></div>
+    </div>
+    <div class="demo-note" id="underperformNote" style="margin-top:14px;"></div>
+  </div>
+
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Cross-subject profile: the same scholar in both subjects</div>
+        <div class="panel-sub" id="xsubSub"></div>
+      </div>
+    </div>
+    <div class="row-2" style="grid-template-columns:1.25fr 1fr;">
+      <div>
+        <div class="cov-head">Every respondent, counted once</div>
+        <div id="xsubMatrix"></div>
+      </div>
+      <div>
+        <div class="cov-head">Every combination, largest first</div>
+        <div id="xsubGroups"></div>
+      </div>
+    </div>
+    <div class="demo-note" id="xsubNote" style="margin-top:14px; background:var(--warn-bg); border-left-color:var(--warn);"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Unverifiable family answers</div>
+        <div class="panel-sub">A definite yes or no from the family, with no exam on record to check it against</div>
+      </div>
+    </div>
+    <div id="unverifiablePanel"></div>
+  </div>
+
+  <div class="row-2">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Match rate by subject</div>
+          <div class="panel-sub">Parent perception vs. teacher classification, comparable rows only</div>
+        </div>
+      </div>
+      <div class="cmp-row" id="cmpPanel"></div>
+      <div class="cmp-ratio" id="cmpRatio"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Demographic subgroup check</div>
+          <div class="panel-sub">Blind-spot rate among scholars not on grade level</div>
+        </div>
+      </div>
+      <div class="demo-compare" id="demoPanel"></div>
+      <div class="demo-note" id="demoNote"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Exam status by grade: Math vs. Reading</div>
+        <div class="panel-sub">Two bars per grade, each stacked into three states. Reconciles exactly: Math 244+24+414=682, Reading 244+1+437=682</div>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:#61757F"></span>Not in Assessment File</span>
+      <span class="lg"><span class="sw" style="background:#A8431C"></span>In Assessment File, this subject not written</span>
+      <span class="lg"><span class="sw" style="background:#1782C4"></span>Math written</span>
+      <span class="lg"><span class="sw" style="background:#CF5F25"></span>Reading written</span>
+    </div>
+    <svg id="chartSubjectExam" viewBox="0 0 900 300" style="width:100%; height:auto;"></svg>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Survey participation by grade</div>
+        <div class="panel-sub">Who answered the survey, by grade and campus type</div>
+      </div>
+    </div>
+    <div class="row-2" style="grid-template-columns:1fr 1fr;">
+      <div>
+        <div class="cov-head">Count by Grade &amp; In Assessment File</div>
+        <svg id="chartGradeAssess" viewBox="0 0 380 260" style="width:100%; height:auto;"></svg>
+      </div>
+      <div>
+        <div class="cov-head">Count by School Level</div>
+        <svg id="chartSchoolLevel" viewBox="0 0 380 300" style="width:100%; height:auto;"></svg>
+      </div>
+    </div>
+  </div>
+
+  
+  
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

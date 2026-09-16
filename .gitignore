@@ -1,0 +1,13 @@
+# Uplift's own materials - the source workbooks and the assessment brief.
+# These are their files, not work product, and this repository is intended to be
+# public. Delete these four lines if you want them tracked.
+Analyst_Exercise_*.xlsx
+Analyst_Interview_Prework_Guide.docx
+
+# working files
+*.bak
+*.tmp
+__pycache__/
+node_modules/
+.DS_Store
+claude.pbix
